@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# CalorieLens — Frontend (Vite + React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the **frontend** for CalorieLens built with **Vite + React + TypeScript**.
 
-Currently, two official plugins are available:
+The app expects a backend that exposes an HTTP API (default: `http://127.0.0.1:8000`) with an endpoint `POST /api/recognize` that accepts a multipart image file (field name: `file`) and an optional `title` string, and returns a JSON payload with detected ingredients and totals. You can override the base URL with an environment variable (see below).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## Prerequisites
+- **Node.js** ≥ 18 (LTS recommended)
+- **npm** ≥ 9 (or **pnpm**/**yarn** if you prefer)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+> Check versions:
+> ```bash
+> node -v
+> npm -v
+> ```
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Setup
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1) Install dependencies
+```bash
+npm install
+# or: pnpm install
+# or: yarn install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2) Configure environment
+Create a `.env` file at the project root (same folder as `package.json`) and set the backend API base URL. If you skip this, it defaults to `http://127.0.0.1:8000`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+# .env
+VITE_API_BASE_URL=http://127.0.0.1:8000
 ```
+
+> The frontend uses this value in `src/api/client.ts`:
+> ```ts
+> const baseURL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
+> ```
+
+---
+
+## Run (development)
+
+```bash
+npm run dev
+```
+Vite will print a local dev URL, typically `http://127.0.0.1:5173` or `http://localhost:5173`.
+
+Make sure your backend is running and reachable at the `VITE_API_BASE_URL` you configured.
+
+---
+
+## Build (production)
+
+```bash
+npm run build
+```
+
+The production assets will be emitted into `dist/`.
+
+---
+
+## Preview a production build locally
+
+```bash
+npm run preview
+```
+
+---
+
+## Common issues
+
+- **CORS errors** when calling the API:
+  Ensure your backend includes CORS settings to allow requests from the Vite dev origin (e.g., `http://localhost:5173`).
+
+- **Cannot reach backend**:
+  Verify the backend is running on the correct host/port, and that `VITE_API_BASE_URL` matches it exactly (including protocol and port).
+
+- **Image upload fails**:
+  The `POST /api/recognize` endpoint must accept `multipart/form-data` with field `file` and optional `title`. Ensure the backend matches that contract.
